@@ -119,14 +119,14 @@ namespace SteamAutocrackGUI
                     if (!string.IsNullOrEmpty(APPID.AppSettings.Default.ZipOutputFolder) && Directory.Exists(APPID.AppSettings.Default.ZipOutputFolder))
                         fbd.SelectedPath = APPID.AppSettings.Default.ZipOutputFolder;
 
-                    if (fbd.ShowDialog() == DialogResult.OK)
+                    if (fbd.ShowDialog(this) == DialogResult.OK)
                     {
                         string selectedPath = fbd.SelectedPath;
 
                         // Check if user selected root of a drive (e.g., G:\, C:\)
                         if (Path.GetPathRoot(selectedPath) == selectedPath)
                         {
-                            MessageBox.Show(
+                            APPID.TopMostHelper.ShowMessage(
                                 "Cannot use root of a drive as zip folder.\n\n" +
                                 "Windows often blocks writing directly to drive roots.\n" +
                                 "Please create a folder (e.g., " + selectedPath + "Zips) and select that instead.",

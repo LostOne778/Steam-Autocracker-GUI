@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using SteamAppIdIdentifier;
 
+using APPID;
+
 namespace SteamAutocrackGUI
 {
 	// BatchGameItem and NeonProgressBar moved to BatchGameModels.cs so the Form
@@ -698,7 +700,7 @@ namespace SteamAutocrackGUI
 					}
 					else
 					{
-						MessageBox.Show("No crack details available yet.\nDetails are populated after cracking.",
+						APPID.TopMostHelper.ShowMessage("No crack details available yet.\nDetails are populated after cracking.",
 							"No Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
 					}
 				}
@@ -1077,7 +1079,7 @@ namespace SteamAutocrackGUI
 						msg += $"\n...and {missingAppIds.Count - 5} more";
 					msg += "\n\nDouble-click on the AppID column to set them.\nContinue anyway? (games without AppID will be skipped)";
 
-					if (MessageBox.Show(msg, "Missing AppIDs", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+					if (APPID.TopMostHelper.ShowMessage(msg, "Missing AppIDs", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
 						return;
 				}
 
@@ -1124,7 +1126,7 @@ namespace SteamAutocrackGUI
 
 				if (SelectedGames.Count == 0)
 				{
-					MessageBox.Show("Please select at least one action for at least one game.",
+					APPID.TopMostHelper.ShowMessage("Please select at least one action for at least one game.",
 						"No Actions Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 					return;
 				}
@@ -1430,18 +1432,20 @@ namespace SteamAutocrackGUI
 		/// </summary>
 		private void RepositionUploadSlots()
 		{
-			int y = 0;
+			// Slot panels are Dock.Top so they stack automatically - setting Location
+			// on them does nothing. The container's HEIGHT is what decides how many
+			// are actually visible, and it must be set via Height (not Size) because
+			// the container is Dock.Bottom and the layout engine owns its width.
+			int visibleCount = 0;
 			foreach (var slot in uploadSlots)
 			{
-				if (slot.InUse && slot.Panel.Visible)
-				{
-					slot.Panel.Location = new Point(0, y);
-					y += 38;
-				}
+				if (slot != null && slot.InUse && slot.Panel.Visible)
+					visibleCount++;
 			}
-			// Resize container to fit active slots
-			int containerHeight = Math.Max(y, 38);
-			uploadSlotsContainer.Size = new Size(735, containerHeight);
+
+			uploadSlotsContainer.Height = Math.Max(visibleCount, 1) * 38;
+			uploadSlotsContainer.PerformLayout();
+			this.PerformLayout();
 		}
 
 		/// <summary>
@@ -1823,7 +1827,7 @@ namespace SteamAutocrackGUI
 			{
 				form.Owner = this;
 				this.Hide(); // Hide batch form while settings open
-				if (form.ShowDialog() == DialogResult.OK)
+				if (form.AsTopMost().ShowDialog() == DialogResult.OK)
 				{
 					CompressionFormat = form.SelectedFormat;
 					CompressionLevel = form.SelectedLevel;
@@ -2189,7 +2193,7 @@ namespace SteamAutocrackGUI
 			using (var dialog = new AppIdSearchDialog(gameName, currentAppId))
 			{
 				dialog.Owner = this;
-				if (dialog.ShowDialog(this) == DialogResult.OK)
+				if (dialog.AsTopMost().ShowDialog(this) == DialogResult.OK)
 				{
 					return dialog.SelectedAppId;
 				}
@@ -2435,8 +2439,18 @@ namespace SteamAutocrackGUI
 			textBox.AppendText($"AppID: {details.AppId}\n");
 			textBox.AppendText($"Time: {details.Timestamp:yyyy-MM-dd HH:mm:ss}\n");
 
-			textBox.SelectionColor = details.Success ? Color.LightGreen : Color.Red;
-			textBox.AppendText($"Success: {(details.Success ? "✓ Yes" : "✗ No")}\n\n");
+			// A title the user didn't select for cracking isn't a failure - show it
+			// as skipped rather than a red "No".
+			if (!details.CrackAttempted)
+			{
+				textBox.SelectionColor = Color.Orange;
+				textBox.AppendText("Crack: Skipped (Clean)\n\n");
+			}
+			else
+			{
+				textBox.SelectionColor = details.Success ? Color.LightGreen : Color.Red;
+				textBox.AppendText($"Success: {(details.Success ? "✓ Yes" : "✗ No")}\n\n");
+			}
 
 			if (details.DllsBackedUp.Count > 0)
 			{
@@ -2571,14 +2585,14 @@ namespace SteamAutocrackGUI
 				try
 				{
 					Clipboard.SetText(details.GetSummary());
-					MessageBox.Show("Details copied to clipboard!", "Copied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					APPID.TopMostHelper.ShowMessage("Details copied to clipboard!", "Copied", MessageBoxButtons.OK, MessageBoxIcon.Information);
 				}
 				catch (Exception ex) { Console.WriteLine(ex.Message); }
 			};
 
 			detailForm.Controls.Add(textBox);
 			detailForm.Controls.Add(copyBtn);
-			detailForm.ShowDialog(this);
+			detailForm.AsTopMost().ShowDialog(this);
 		}
 
 		[DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
@@ -2813,7 +2827,7 @@ namespace SteamAutocrackGUI
 				}
 				else
 				{
-					MessageBox.Show("Please select a game from the results or enter an AppID manually.",
+					APPID.TopMostHelper.ShowMessage("Please select a game from the results or enter an AppID manually.",
 						"No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				}
 			};

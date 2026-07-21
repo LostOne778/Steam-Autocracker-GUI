@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using APPID;
+
 namespace SteamAppIdIdentifier
 {
     public static class AutoCleanupSystem
@@ -85,7 +87,7 @@ namespace SteamAppIdIdentifier
             message += "After cleanup, you'll have clean files ready to share.\n\n";
             message += "Clean up now?";
 
-            var result = MessageBox.Show(
+            var result = APPID.TopMostHelper.ShowMessage(
                 message,
                 "Clean Install Not Found - Auto Cleanup Available",
                 MessageBoxButtons.YesNoCancel,
@@ -99,7 +101,7 @@ namespace SteamAppIdIdentifier
 
             if (result == DialogResult.No)
             {
-                MessageBox.Show(
+                APPID.TopMostHelper.ShowMessage(
                     "Cannot upload cracked files as clean.\n\n" +
                     "To share clean files, you must either:\n" +
                     "• Let us clean it up automatically, or\n" +
@@ -400,7 +402,7 @@ namespace SteamAppIdIdentifier
             };
 
             successForm.Controls.AddRange(new Control[] { lblTitle, lblSummary, txtDetails, btnOK });
-            successForm.ShowDialog();
+            successForm.AsTopMost().ShowDialog();
         }
 
         private static void ShowCleanupErrorDialog(CleanupResult result)
@@ -461,7 +463,7 @@ namespace SteamAppIdIdentifier
             };
 
             errorForm.Controls.AddRange(new Control[] { lblTitle, lblMessage, txtErrors, btnOK });
-            errorForm.ShowDialog();
+            errorForm.AsTopMost().ShowDialog();
         }
 
         // Quick check if we can auto-clean

@@ -105,6 +105,9 @@ namespace APPID
             public List<string> ExesUnpacked { get; } = new List<string>();   // EXEs with Steam Stub that were unpacked
             public List<string> ExesSkipped { get; } = new List<string>();    // Legacy - no longer used
             public List<string> Errors { get; } = new List<string>();
+            // False when the user didn't select this title for cracking, so the
+            // details view can show "Skipped" instead of reporting a failure.
+            public bool CrackAttempted { get; set; }
             public bool Success { get; set; }
             public DateTime Timestamp { get; set; } = DateTime.Now;
 
@@ -1531,7 +1534,7 @@ namespace APPID
         {
             Tit("Showing permission error dialog...", Color.Yellow);
 
-            DialogResult result = MessageBox.Show(
+            DialogResult result = APPID.TopMostHelper.ShowMessage(
                 "Permission error: Unable to modify files in the selected game folder.\n\n" +
                 "Would you like to copy the game folder to your desktop and perform the action there?",
                 "Permission Error",
@@ -1563,7 +1566,7 @@ namespace APPID
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to copy game: {ex.Message}", "Copy Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    APPID.TopMostHelper.ShowMessage($"Failed to copy game: {ex.Message}", "Copy Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }
@@ -1934,7 +1937,7 @@ namespace APPID
                     }
                     if (steamcount > 1 || execount > 1 || steam64count > 1)
                     {
-                        DialogResult Diagg = MessageBox.Show(
+                        DialogResult Diagg = APPID.TopMostHelper.ShowMessage(
                             "This is the 2nd steam_api64.dll on this run - something is broken. " +
                             "The APPID has to match the ini/txt files or the cracks will not work.\n\n" +
                             "This usually happens when SACGUI determines the wrong parent dir " +
@@ -2281,6 +2284,7 @@ oLink3.Save";
 
             // Finalize crack details
             bool success = cracked || steamlessUnpacked;
+            CurrentCrackDetails.CrackAttempted = true;
             CurrentCrackDetails.Success = success;
 
             // Check if no steam_api DLLs were found
@@ -2696,7 +2700,7 @@ oLink3.Save";
                     if (Path.GetPathRoot(d) == d || d.Length <= 3)
                     {
                         Tit("You can't select a root drive! Pick a game folder.", Color.OrangeRed);
-                        MessageBox.Show("Nope! You can't crack an entire drive. Please select a game folder instead.", "Nice Try", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        APPID.TopMostHelper.ShowMessage("Nope! You can't crack an entire drive. Please select a game folder instead.", "Nice Try", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         continue;
                     }
 
@@ -2794,7 +2798,7 @@ oLink3.Save";
                 {
                     //FILE - reject all files
                     Tit("Please drag and drop a FOLDER, not a file!", Color.LightSkyBlue);
-                    MessageBox.Show("Drag and drop a game folder, not individual files!");
+                    APPID.TopMostHelper.ShowMessage("Drag and drop a game folder, not individual files!");
                 }
             }
             drgdropText.SendToBack();
@@ -2869,7 +2873,7 @@ oLink3.Save";
                     compressionForm.TopMost = true;
                     compressionForm.BringToFront();
                     this.Hide();
-                    compressionForm.ShowDialog(this);
+                    compressionForm.AsTopMost().ShowDialog(this);
                     this.Show();
                 }
                 return true;
@@ -2900,7 +2904,7 @@ oLink3.Save";
                     bool crackSuccess = await CrackAsync();
                     if (!crackSuccess)
                     {
-                        MessageBox.Show($"Failed to crack {gameName}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        APPID.TopMostHelper.ShowMessage($"Failed to crack {gameName}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         gameDir = originalGameDir;
                         return;
                     }
@@ -2913,7 +2917,7 @@ oLink3.Save";
                     compressionForm.StartPosition = FormStartPosition.CenterParent;
                     compressionForm.TopMost = true;
 
-                    if (compressionForm.ShowDialog() != DialogResult.OK)
+                    if (compressionForm.AsTopMost().ShowDialog() != DialogResult.OK)
                     {
                         gameDir = originalGameDir;
                         return;
@@ -2936,7 +2940,7 @@ oLink3.Save";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error sharing game: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                APPID.TopMostHelper.ShowMessage($"Error sharing game: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -3006,7 +3010,7 @@ oLink3.Save";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Compression/Upload failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                APPID.TopMostHelper.ShowMessage($"Compression/Upload failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -3033,7 +3037,7 @@ oLink3.Save";
                         }
                         else
                         {
-                            MessageBox.Show("7-Zip not found! Please install 7-Zip for advanced compression.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            APPID.TopMostHelper.ShowMessage("7-Zip not found! Please install 7-Zip for advanced compression.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return false;
                         }
                     }
@@ -3268,7 +3272,7 @@ oLink3.Save";
                 {
                     parentForm.Invoke(new Action(() =>
                     {
-                        MessageBox.Show($"Upload failed (HTTP Error):\n{httpEx.Message}\n\nInner: {httpEx.InnerException?.Message}", "Upload Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        APPID.TopMostHelper.ShowMessage($"Upload failed (HTTP Error):\n{httpEx.Message}\n\nInner: {httpEx.InnerException?.Message}", "Upload Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }));
                 }
             }
@@ -3280,7 +3284,7 @@ oLink3.Save";
                 {
                     parentForm.Invoke(new Action(() =>
                     {
-                        MessageBox.Show("Upload failed: Request timed out (file too large or slow connection)", "Upload Timeout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        APPID.TopMostHelper.ShowMessage("Upload failed: Request timed out (file too large or slow connection)", "Upload Timeout", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }));
                 }
             }
@@ -3295,7 +3299,7 @@ oLink3.Save";
                 {
                     parentForm.Invoke(new Action(() =>
                     {
-                        MessageBox.Show($"Upload failed:\n{ex.Message}\n\nType: {ex.GetType().Name}\n\nInner: {ex.InnerException?.Message}", "Upload Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        APPID.TopMostHelper.ShowMessage($"Upload failed:\n{ex.Message}\n\nType: {ex.GetType().Name}\n\nInner: {ex.InnerException?.Message}", "Upload Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }));
                 }
             }
@@ -3383,7 +3387,7 @@ oLink3.Save";
             successForm.Controls.Add(label);
             successForm.Controls.Add(urlTextBox);
             successForm.Controls.Add(copyButton);
-            successForm.ShowDialog();
+            successForm.AsTopMost().ShowDialog();
         }
 
         private void ShowUploadSuccessWithConversion(string oneFichierUrl, long fileSize, string gameName, bool isCracked, Form parentForm)
@@ -3540,7 +3544,7 @@ oLink3.Save";
                 }
             });
 
-            successForm.Show();
+            successForm.AsTopMost().Show();
         }
 
         private void ShowUploadSuccessWithBothLinks(string primaryUrl, string oneFichierUrl, string pydriveUrl, string gameName, bool isCracked, Form parentForm)
@@ -3683,7 +3687,7 @@ oLink3.Save";
             successForm.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) dragOffset = e.Location; };
             successForm.MouseMove += (s, e) => { if (e.Button == MouseButtons.Left) successForm.Location = new Point(successForm.Left + e.X - dragOffset.X, successForm.Top + e.Y - dragOffset.Y); };
 
-            successForm.Show();
+            successForm.AsTopMost().Show();
         }
 
         private System.Threading.CancellationTokenSource zipCancellationTokenSource;
@@ -3737,7 +3741,7 @@ oLink3.Save";
                         compressionForm.StartPosition = FormStartPosition.CenterParent;
                         compressionForm.TopMost = true;
                         compressionForm.BringToFront();
-                        if (compressionForm.ShowDialog(this) != DialogResult.OK)
+                        if (compressionForm.AsTopMost().ShowDialog(this) != DialogResult.OK)
                         {
                             ZipToShare.Enabled = true;
                             // Keep both buttons visible and centered if user cancels
@@ -4182,7 +4186,7 @@ oLink3.Save";
             }
             else
             {
-                MessageBox.Show("Enter APPID or press ESC to cancel!", "No APPID entered!");
+                APPID.TopMostHelper.ShowMessage("Enter APPID or press ESC to cancel!", "No APPID entered!");
             }
         }
 
@@ -4287,7 +4291,7 @@ oLink3.Save";
                 }
                 else
                 {
-                    MessageBox.Show("Enter APPID or press ESC to cancel!");
+                    APPID.TopMostHelper.ShowMessage("Enter APPID or press ESC to cancel!");
                 }
 
             }
@@ -4508,7 +4512,7 @@ oLink3.Save";
                 dialog.MouseUp += (s, e) => { dragging = false; };
 
                 dialog.Controls.AddRange(new Control[] { titleLabel, messageLabel, pathPanel, questionLabel, yesBtn, noBtn });
-                dialog.ShowDialog(this);
+                dialog.AsTopMost().ShowDialog(this);
             }
 
             return result;
@@ -5822,7 +5826,7 @@ oLink3.Save";
                 compressionForm.TopMost = true;
                 compressionForm.BringToFront();
                 this.Hide();
-                compressionForm.ShowDialog(this);
+                compressionForm.AsTopMost().ShowDialog(this);
                 this.Show();
             }
         }

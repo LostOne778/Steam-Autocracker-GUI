@@ -90,7 +90,7 @@ namespace SteamAppIdIdentifier
                     var gameName = grid.Rows[e.RowIndex].Cells["GameName"]?.Value?.ToString();
                     if (!string.IsNullOrEmpty(gameName))
                     {
-                        var result = MessageBox.Show(
+                        var result = APPID.TopMostHelper.ShowMessage(
                             $"Link copied!\n\nOpen CS.RIN.RU search for {gameName}?",
                             "Upload Ready",
                             MessageBoxButtons.YesNo,

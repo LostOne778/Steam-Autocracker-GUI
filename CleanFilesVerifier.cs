@@ -243,7 +243,7 @@ namespace SteamAppIdIdentifier
             message += "6. Try sharing again\n\n";
             message += "Would you like to open Steam now?";
 
-            var dialogResult = MessageBox.Show(
+            var dialogResult = APPID.TopMostHelper.ShowMessage(
                 message,
                 "Cannot Share - Files Are Not Clean",
                 MessageBoxButtons.YesNo,
@@ -304,7 +304,7 @@ namespace SteamAppIdIdentifier
             message += "Use Steam's 'Verify integrity' feature instead.\n";
             message += "This ensures you have genuine clean files.";
 
-            MessageBox.Show(
+            APPID.TopMostHelper.ShowMessage(
                 message,
                 "Crack Artifacts Detected",
                 MessageBoxButtons.OK,
@@ -382,7 +382,7 @@ namespace SteamAppIdIdentifier
             // Step 2: Upload clean version
             // (Upload implementation here)
 
-            var confirmCrack = MessageBox.Show(
+            var confirmCrack = APPID.TopMostHelper.ShowMessage(
                 $"Clean files uploaded successfully!\n\n" +
                 "Now we'll crack the game and upload the cracked version.\n" +
                 "This will modify your game files.\n\n" +

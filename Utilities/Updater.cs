@@ -314,7 +314,7 @@ del ""%~f0""
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to download update:\n{ex.Message}", "Update Error",
+                APPID.TopMostHelper.ShowMessage($"Failed to download update:\n{ex.Message}", "Update Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -429,7 +429,7 @@ del ""%~f0""
                 var obj = getJson("Detanup01/gbe_fork/releases/latest");
                 if (obj == null)
                 {
-                    MessageBox.Show("Unable to check for GoldBerg updates. Please try again later.");
+                    APPID.TopMostHelper.ShowMessage("Unable to check for GoldBerg updates. Please try again later.");
                     return;
                 }
 
@@ -551,7 +551,7 @@ del ""%~f0""
                     }
                     else
                     {
-                        MessageBox.Show("Windows release asset not found for GoldBerg fork.");
+                        APPID.TopMostHelper.ShowMessage("Windows release asset not found for GoldBerg fork.");
                     }
                 }
             }
@@ -577,7 +577,7 @@ del ""%~f0""
             catch (Exception ex)
             {
                 LogHelper.LogError($"ExtractFileAsync failed for {sourceArchive}", ex);
-                MessageBox.Show("Unable to extract updated files. If you have WINRAR try uninstalling it then trying again! If you have not installed FFAIO since version 2.0.13 then ");
+                APPID.TopMostHelper.ShowMessage("Unable to extract updated files. If you have WINRAR try uninstalling it then trying again! If you have not installed FFAIO since version 2.0.13 then ");
             }
         }
 

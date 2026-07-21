@@ -207,7 +207,7 @@ namespace SteamAppIdIdentifier
                 }
                 catch (Exception exx) { Console.WriteLine(exx.Message); }
 
-                MessageBox.Show($"SACGUI has crashed!{Environment.NewLine}{Environment.NewLine}" +
+                APPID.TopMostHelper.ShowMessage($"SACGUI has crashed!{Environment.NewLine}{Environment.NewLine}" +
                               $"A crash report has been saved to:{Environment.NewLine}{crashFile}{Environment.NewLine}{Environment.NewLine}" +
                               $"Error: {ex?.Message ?? "Unknown error"}",
                               "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -215,7 +215,7 @@ namespace SteamAppIdIdentifier
             catch
             {
                 // Last resort - at least try to show something
-                MessageBox.Show("Fatal crash - unable to write crash log", "Critical Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                APPID.TopMostHelper.ShowMessage("Fatal crash - unable to write crash log", "Critical Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

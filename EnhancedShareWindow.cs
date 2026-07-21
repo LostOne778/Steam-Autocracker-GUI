@@ -724,7 +724,7 @@ namespace SteamAppIdIdentifier
                 // Check if game path is valid
                 if (string.IsNullOrEmpty(installPath) || !Directory.Exists(installPath))
                 {
-                    MessageBox.Show("Game installation path not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    APPID.TopMostHelper.ShowMessage("Game installation path not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -786,7 +786,7 @@ namespace SteamAppIdIdentifier
                 var mainForm = parentForm as SteamAppId;
                 if (mainForm == null)
                 {
-                    MessageBox.Show("Cannot access cracking functionality.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    APPID.TopMostHelper.ShowMessage("Cannot access cracking functionality.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -820,7 +820,7 @@ namespace SteamAppIdIdentifier
                     (overlay.Height - statusLabel.Height) / 2
                 );
                 overlay.Controls.Add(statusLabel);
-                overlay.Show();
+                overlay.AsTopMost().Show();
 
                 try
                 {
@@ -841,14 +841,14 @@ namespace SteamAppIdIdentifier
                         // Save that we cracked this game
                         SaveSharedGame(appId, row.Cells["BuildID"].Value?.ToString(), "cracked_only");
 
-                        MessageBox.Show($"{gameName} has been cracked successfully!", "Success",
+                        APPID.TopMostHelper.ShowMessage($"{gameName} has been cracked successfully!", "Success",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
                         row.Cells["CrackOnly"].Value = "Crack";
                         row.Cells["CrackOnly"].Style.BackColor = Color.FromArgb(8, 8, 12); // Reset to default
-                        MessageBox.Show($"Failed to crack {gameName}. Check the main window for details.",
+                        APPID.TopMostHelper.ShowMessage($"Failed to crack {gameName}. Check the main window for details.",
                             "Crack Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
@@ -859,13 +859,13 @@ namespace SteamAppIdIdentifier
                     row.Cells["CrackOnly"].Style.BackColor = Color.FromArgb(8, 8, 12); // Reset to default
 
                     System.Diagnostics.Debug.WriteLine($"[CRACK-ONLY] Error: {ex}");
-                    MessageBox.Show($"Error cracking {gameName}:\n{ex.Message}",
+                    APPID.TopMostHelper.ShowMessage($"Error cracking {gameName}:\n{ex.Message}",
                         "Crack Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                APPID.TopMostHelper.ShowMessage($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 row.Cells["CrackOnly"].Value = "Crack";
             }
         }
@@ -874,7 +874,7 @@ namespace SteamAppIdIdentifier
         {
             if (string.IsNullOrEmpty(installPath) || !Directory.Exists(installPath))
             {
-                MessageBox.Show("Game installation path not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                APPID.TopMostHelper.ShowMessage("Game installation path not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -1090,7 +1090,7 @@ namespace SteamAppIdIdentifier
 
                         if (!crackSuccess)
                         {
-                            MessageBox.Show(
+                            APPID.TopMostHelper.ShowMessage(
                                 "Failed to crack the game. This could be because:\n\n" +
                                 "• The game doesn't have steam_api.dll or steam_api64.dll\n" +
                                 "• The game is already cracked\n" +
@@ -1127,7 +1127,7 @@ namespace SteamAppIdIdentifier
                             $"Full Exception:\n{ex.ToString()}");
 
                         // Show user-friendly error
-                        MessageBox.Show(
+                        APPID.TopMostHelper.ShowMessage(
                             $"Error during cracking process:\n\n{ex.Message}\n\n" +
                             $"Full error details saved to:\n{errorLog}\n\n" +
                             "You can still share the game as Clean instead.",
@@ -1141,7 +1141,7 @@ namespace SteamAppIdIdentifier
                 }
                 else
                 {
-                    MessageBox.Show("Cannot access cracking functionality. Please use the main window to crack games.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    APPID.TopMostHelper.ShowMessage("Cannot access cracking functionality. Please use the main window to crack games.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -1152,7 +1152,7 @@ namespace SteamAppIdIdentifier
                 using (var compressionForm = new SteamAutocrackGUI.CompressionSettingsForm())
                 {
                     compressionForm.StartPosition = FormStartPosition.CenterParent;
-                    if (compressionForm.ShowDialog(this) != DialogResult.OK)
+                    if (compressionForm.AsTopMost().ShowDialog(this) != DialogResult.OK)
                     {
                         // User cancelled - reset the button status
                         if (cracked)
@@ -1215,7 +1215,7 @@ namespace SteamAppIdIdentifier
                     // Show progress window
                     var progressForm = new RGBProgressWindow(gameName, cracked ? "Cracked" : "Clean");
                     progressForm.TopMost = this.TopMost;
-                    progressForm.Show(this);
+                    progressForm.AsTopMost().Show(this);
                     progressForm.CenterOverParent(this);
                     progressForm.UpdateStatus($"Compressing with {format.ToUpper()} level {level}..." + (usePassword ? " (Password protected)" : ""));
 
@@ -1240,7 +1240,7 @@ namespace SteamAppIdIdentifier
 
                     if (!compressionSuccess)
                     {
-                        MessageBox.Show("Compression failed!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        APPID.TopMostHelper.ShowMessage("Compression failed!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         row.Cells[btnColumn].Value = cracked ? "Crack + Share" : "Share";
                         return;
                     }
@@ -1305,7 +1305,7 @@ namespace SteamAppIdIdentifier
                     // Match parent form's TopMost setting
                     completionDialog.TopMost = this.TopMost;
 
-                    var result = completionDialog.ShowDialog(this);
+                    var result = completionDialog.AsTopMost().ShowDialog(this);
 
                     if (result == DialogResult.Yes)
                     {
@@ -1353,7 +1353,7 @@ namespace SteamAppIdIdentifier
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                APPID.TopMostHelper.ShowMessage($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 row.Cells[cracked ? "ShareCracked" : "ShareClean"].Value = cracked ? "Crac + Share" : "Share";
             }
         }
@@ -1696,7 +1696,7 @@ namespace SteamAppIdIdentifier
                             // Check for memory errors
                             if (errorMsg.Contains("Can't allocate") || errorMsg.Contains("memory") || errorMsg.Contains("ERROR:"))
                             {
-                                var result = MessageBox.Show(
+                                var result = APPID.TopMostHelper.ShowMessage(
                                     "7-Zip ran out of memory during compression!\n\n" +
                                     "This usually happens with ultra compression on large files.\n\n" +
                                     "Options:\n" +
@@ -1763,7 +1763,7 @@ namespace SteamAppIdIdentifier
                             }
                             else if (!string.IsNullOrEmpty(errorMsg))
                             {
-                                MessageBox.Show($"7-Zip compression failed:\n{errorMsg}", "Compression Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                APPID.TopMostHelper.ShowMessage($"7-Zip compression failed:\n{errorMsg}", "Compression Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
 
@@ -1815,13 +1815,13 @@ namespace SteamAppIdIdentifier
                 }
                 else
                 {
-                    MessageBox.Show("7-Zip not found! Install 7-Zip for 7z format support.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    APPID.TopMostHelper.ShowMessage("7-Zip not found! Install 7-Zip for 7z format support.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Compression error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                APPID.TopMostHelper.ShowMessage($"Compression error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
@@ -1885,7 +1885,7 @@ namespace SteamAppIdIdentifier
                 // Show the progress window centered over parent (after creating progress handlers)
                 progressWindow.TopMost = this.TopMost;
                 progressWindow.lblStatus.Text = $"Starting upload...";
-                progressWindow.Show(this);
+                progressWindow.AsTopMost().Show(this);
                 progressWindow.CenterOverParent(this);
                 progressWindow.BringToFront();
                 Application.DoEvents(); // Allow UI to update
@@ -2271,7 +2271,7 @@ namespace SteamAppIdIdentifier
                 compressionForm.TopMost = true;
                 compressionForm.BringToFront();
                 this.Hide();
-                compressionForm.ShowDialog(this);
+                compressionForm.AsTopMost().ShowDialog(this);
                 this.Show();
             }
         }
@@ -2334,7 +2334,7 @@ namespace SteamAppIdIdentifier
 
             if (selectedPaths.Count == 0)
             {
-                MessageBox.Show("Please select at least one game.",
+                APPID.TopMostHelper.ShowMessage("Please select at least one game.",
                     "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -2594,7 +2594,7 @@ namespace SteamAppIdIdentifier
             else
                 successForm.Controls.AddRange(new Control[] { lblSuccess, txtUrl, btnCopy, btnClose });
 
-            successForm.ShowDialog(this);
+            successForm.AsTopMost().ShowDialog(this);
         }
 
         private void ShowUploadSuccess(string url, string gameName, bool cracked)
@@ -2793,7 +2793,7 @@ namespace SteamAppIdIdentifier
                 folderDialog.Description = "Select a folder to scan for Steam games (will search for .acf files)";
                 folderDialog.ShowNewFolderButton = false;
 
-                if (folderDialog.ShowDialog() == DialogResult.OK)
+                if (folderDialog.ShowDialog(this) == DialogResult.OK)
                 {
                     string selectedPath = folderDialog.SelectedPath;
 
@@ -3441,8 +3441,17 @@ namespace SteamAppIdIdentifier
             textBox.AppendText($"AppID: {details.AppId}\n");
             textBox.AppendText($"Time: {details.Timestamp:yyyy-MM-dd HH:mm:ss}\n");
 
-            textBox.SelectionColor = details.Success ? Color.LightGreen : Color.Red;
-            textBox.AppendText($"Crack Success: {(details.Success ? "✓ Yes" : "✗ No")}\n\n");
+            // A title that wasn't selected for cracking isn't a failure.
+            if (!details.CrackAttempted)
+            {
+                textBox.SelectionColor = Color.Orange;
+                textBox.AppendText("Crack: Skipped (Clean)\n\n");
+            }
+            else
+            {
+                textBox.SelectionColor = details.Success ? Color.LightGreen : Color.Red;
+                textBox.AppendText($"Crack Success: {(details.Success ? "✓ Yes" : "✗ No")}\n\n");
+            }
 
             if (details.DllsBackedUp.Count > 0)
             {
@@ -3580,7 +3589,7 @@ namespace SteamAppIdIdentifier
             detailForm.Controls.Add(textBox);
 
             // Use Show() instead of ShowDialog() to not block during uploads
-            detailForm.Show(this);
+            detailForm.AsTopMost().Show(this);
             detailForm.BringToFront();
             detailForm.Activate();
         }
